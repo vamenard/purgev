@@ -4,17 +4,13 @@ class PurgeV {
 
     private $url;
     private $domain;
-
-    private $verbose;
     private $internalUri;
-    private $externalUri;
 
-    public function __construct( $argv, $argc ) {
+    public function __construct( $argv ) {
 
         $this->url = false;
         $this->domain = false;
         $this->internalUri = [];
-        $this->externalUri = [];
 
         $this->filterParameter( $argv );
         if ($this->url) {
@@ -29,25 +25,16 @@ class PurgeV {
 
     public function handleHref( $pathValue ) {
 
-        if ($this->discardHref( $pathValue ))
+        if ($this->discardHref( $pathValue )) {
             return;
-
-        if ((strpos($pathValue, "http:") === 0) 
-            && (strpos($pathValue, $this->domain) === false)) {
-
-            // oubounds - not needed ftm 
-            array_push($this->externalUri, $pathValue);
-            
-        } else if ((strpos($pathValue, "http:") === false) 
-            && (strpos($pathValue, " ") === false)) {
-
-            array_push($this->internalUri, $pathValue);
         }
+
+        array_push($this->internalUri, $pathValue);
     }
 
     public function discardHref( $pathValue ) {
 
-        $exclusion = ['javascript:', ' '];
+        $exclusion = ['javascript:', ' ', 'http:'];
         $strict = ['/', ''];
 
         for ($i=0;$i<sizeof($exclusion);$i++) {
@@ -71,14 +58,13 @@ class PurgeV {
 
     public function filterUrl( $cnt ) {
 
-        $data = str_replace("<a href=\"", '\0', $cnt);
-        $data = str_replace("\">", '\0', $data);
-        $data = str_replace("\" >", '\0', $data);
+        $data = str_replace('<a href="', '\0', $cnt);
+        $data = str_replace('">', '\0', $data);
         $htmlArray = explode('\0', $data);
         unset($htmlArray[count($htmlArray)-1]);
 
-        $trim = str_replace("http://", "",  $this->url);
-        $url_arr = explode("/", $trim);
+        $trim = str_replace('http://', '',  $this->url);
+        $url_arr = explode('/', $trim);
         $this->domain = $url_arr[0];
 
         for ($i=0; $i<sizeof($htmlArray); $i++) {
@@ -89,9 +75,10 @@ class PurgeV {
     public function filterParameter( $argv ) {
 
         $index = array_search('-h', $argv);
-        if ($index && isset($argv[$index+1]))
-            $this->url = $argv[++$index];
         
+        if ($index && isset($argv[$index+1])) {
+            $this->url = $argv[$index+1];
+        }
     }
 
     public function executeCurlPurge( $path ) {
@@ -99,7 +86,8 @@ class PurgeV {
         $out = shell_exec('curl -sX PURGE http://'.$this->domain.$path);
         sleep(0.1);
     }
+
 }
 
 
-$p = new PurgeV( $argv, $argc );
+$p = new PurgeV( $argv );

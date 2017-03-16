@@ -10,12 +10,15 @@ Simple php tool to purge vanish cache of all internal links present on a web pag
 
 ### Future options
 
-⋅⋅* Allow multiple path requests for balanced servers
-⋅⋅* Allow verbose mode and log file
-⋅⋅* Add fail safe features
-⋅⋅* Limit the number of curl requests
-⋅⋅* Allow recursive / page vanish purge 
-⋅⋅* Code a new version in C
+- Allow multiple path requests for balanced servers
 
+- Allow verbose mode and log file
 
+- Add fail safe features
+
+- Limit the number of curl requests
+
+- Allow recursive / page vanish purge
+ 
+- Code a new version in C
 
